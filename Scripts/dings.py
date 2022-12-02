@@ -113,7 +113,7 @@ class TetrisBlock:
         for i in range(4):
             for j in range(4):
               if block[i][j] == 1:
-                  positions.append((self.x+i, self.y+j+offsets[j]))
+                  positions.append((self.x+i, self.y+j+self.offsets[j]))
         return positions
 
     def calcRotBlock(self, rot,block):
@@ -137,7 +137,7 @@ class TetrisBlock:
     def clearLocalLine(self,y):
         for i in range(4):
             for j in range(4):
-                if self.y+j == y:
+                if self.y+j+self.offsets[j] == y:
                     self.block[i][j] = 0
 
     def getColor(self):
