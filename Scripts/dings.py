@@ -91,7 +91,7 @@ class TetrisBlock:
         self.block = self.blocktypes[blockType]
 
         self.static = False
-        self.offsets =  np.zeros(4)
+        self.offsets =  np.zeros(4, dtype=np.int32)
 
         self.blockColor = self.blockColors[blockType]
     
@@ -103,7 +103,7 @@ class TetrisBlock:
     
     def offset(self,y):
         a = self.calcAbsolutPos(self.block)
-        for el, i in enumerate(a):
+        for i, el in enumerate(a):
             elx,ely = el
             if ely == y:
                 self.offsets[i] += 1
@@ -253,9 +253,10 @@ class TetrisE(Env):
         j.clearLocalLine(i)
 
     for line in lines:
-        for i in range(line, 0, -1):
+        for i in range(line-1, 0, -1):
             for j in self.blocks:
-                j.offset(i)
+                if(j != self.CurrentBlock):
+                    j.offset(i)
 
     return len(lines)
 
