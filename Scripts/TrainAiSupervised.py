@@ -1,10 +1,15 @@
 import numpy as np
 
-name = "12022022_214310"
+name = ["12022022_222700","12022022_230042"]
 
-loadedlabel = np.array(np.load("label "+name+".npy", allow_pickle=True),dtype=np.uint8)
-loadeddata = np.array(np.load("data "+name+".npy", allow_pickle=True),dtype=np.uint8)
+label = []
+data = []
 
+for na in name:
+    label.extend(np.load("label "+na+".npy", allow_pickle=True))
+    data.extend(np.load("data "+na+".npy", allow_pickle=True))
+loadeddata = np.array(data,dtype=np.uint8)
+loadedlabel = np.array(label,dtype=np.uint8)
 
 
 from tensorflow.python.keras.models import Sequential
@@ -24,10 +29,10 @@ model =  Sequential([
 
 print(model.summary())
 
-model.compile(optimizer=SGD(learning_rate=1e-2),loss= mean_squared_error,metrics=['accuracy'])
+model.compile(optimizer=SGD(learning_rate=1e-2),loss= mean_squared_error)
 model.build()
 
-model.fit(loadeddata,loadedlabel,epochs=200,verbose=2)
+model.fit(loadeddata,loadedlabel,epochs=10,verbose=1)     
 
 
 print("trained")

@@ -3,8 +3,7 @@
 import numpy as np
 from datetime import datetime
 import os
-from pygame import gfxdraw
-import pygame
+
 import time
 from gym import Env, spaces
 import random
@@ -17,7 +16,7 @@ rewardHoch = 4
 rewardmult = 2
 alwaysReward = 0.000000001
 
-render = True
+render = False
 
 verbose = 3000
 
@@ -28,6 +27,9 @@ savefile = "BoltzTiny"
 
 # %%
 
+if(render):
+    from pygame import gfxdraw
+    import pygame
 
 class TetrisBlock:
     blockColors = [
@@ -136,6 +138,7 @@ class TetrisE(Env):
         self.doRender = render
 
     def step(self, action):
+        self.linedCleared = 0
         self.count += 1
         observation = self.getObservation()
 
@@ -150,18 +153,21 @@ class TetrisE(Env):
         elif action == 3:
             self.rotate(observation)
 
-        if self.count % 3 == 0:
-            self.moveBlock(0,1)
+        self.moveBlock(0,1)
 
         retObs = observation.reshape(20,10,1)
-        reward = self.getReward(retObs)
+        reward = self.calcReward(self.linedCleared)
         done = self.lost()
         info = {}
+
+        if(self.doRender):
+            self.render()
+
         return retObs, reward, done, info
         
-    def getReward(self, obs):
-        reward = 0
-        return reward   
+    def calcReward(self, linewCleared):
+        a = pow(linewCleared*rewardmult,rewardHoch )
+        return a +alwaysReward
 
     def clearLines(self):	
         lines = []
@@ -188,6 +194,8 @@ class TetrisE(Env):
                 x,y,col = bl
                 if y < line:
                     self.GameField[i] = (x,y+1,col)
+        
+        self.linedCleared = len(lines)
              
 
     def lost(self):
@@ -197,11 +205,12 @@ class TetrisE(Env):
                 return True
         return False
 
-    def reset(self, First = False):
+    def reset(self):
         self.count = 0
         self.BlockCount = 0
         self.GameField = []
-        self.newBlock(First)
+        self.newBlockWithoutSave()
+
 
         if self.doRender:
             pygame.quit()
@@ -271,10 +280,13 @@ class TetrisE(Env):
         pygame.display.flip()
 
     def newBlock(self, First = False):
-        if(not First and self.CurrentBlock):
+        if(self.CurrentBlock):
             for pos in self.CurrentBlock.absolutPositions():
                 cbx, cby = pos
                 self.GameField.append((cbx,cby,self.CurrentBlock.getColor()))
+        self.newBlockWithoutSave()
+    
+    def newBlockWithoutSave(self):
         random.seed(self.BlockCount)
         self.BlockCount += 1
         self.CurrentBlock = TetrisBlock(random.randint(0,6), 3, 0)
@@ -283,36 +295,4 @@ class TetrisE(Env):
         pygame.quit()
 
 
-# %%
-data = []
-label = []
-
-for i in range(0, 10):
-    env = TetrisE()
-    retObs, reward, done = env.reset(True), 0, False
-    while not done:
-        action = 4
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                env.stop()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    action = 0
-                if event.key == pygame.K_RIGHT:
-                    action = 1
-                if event.key == pygame.K_DOWN:
-                    action = 2
-                if event.key == pygame.K_UP:
-                    action = 3
-        time.sleep(.1)
-        data.append(retObs)
-        label.append(np.array(action))
-        retObs, reward, done, info =  env.step(action)
-        env.render()
-        if(done):
-            env.reset()
-
-datat = datetime.now().strftime("%m%d%Y_%H%M%S")
-np.save("data "+datat+".npy", np.array(data)) 
-np.save("label "+datat+".npy", np.array(label)) 
 
