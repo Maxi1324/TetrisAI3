@@ -21,6 +21,7 @@ def call(d, r):
     ep = d.episodes-1
     print("Episode: {}  Time: {}".format(ep, d.episode_agent_seconds[ep]))
 
-runner.run(num_episodes=10000, evaluation=True,callback=call,callback_episode_frequency=100)
-
+runner.run(num_episodes=1000000, evaluation=True,callback=call,callback_episode_frequency=100)
 runner.close()
+
+agent.save(directory='model', format='numpy')
