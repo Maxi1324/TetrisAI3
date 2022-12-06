@@ -1,2 +1,0 @@
-model_checkpoint_path: "model.hf5"
-all_model_checkpoint_paths: "model.hf5"
