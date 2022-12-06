@@ -5,18 +5,31 @@ from models.ModelMan import NetworkSpec
 
 
 class ConfigSpec(Enum):
-    learning_rate = 'learning_rate'
     render = 'render'
     model = 'model'
     policy = 'policy'
     trainStep = 'trainStep'
+    learningrate = "learningrate"
+    warmup = "warmupSteps"
+    steplimit = "limitSteps"
+    winlength = "windowLength"
+    targetModelUpdate = "targetModelUpdate"
+    verbose = "verbose"
+    minToWinLines = "MinToWinLines"
+    
 
 default_config = {
-ConfigSpec.learning_rate: "0.001",
 ConfigSpec.render : "False",
 ConfigSpec.model : NetworkSpec.DenseTiny.value,
 ConfigSpec.policy : PolicieSpec.Greedy.value,
-ConfigSpec.trainStep : "1000000"
+ConfigSpec.trainStep : "1000000",
+ConfigSpec.learningrate : "0.001",
+ConfigSpec.warmup : "1000",
+ConfigSpec.steplimit : "1000000",
+ConfigSpec.winlength : "4",
+ConfigSpec.targetModelUpdate : "1e-2",
+ConfigSpec.verbose : "2",
+ConfigSpec.minToWinLines : "1"
 }
 
 class ConfigLoader:

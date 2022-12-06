@@ -1,13 +1,8 @@
-
 from keras.optimizers import Adam
-
 from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
-from gym import Env, spaces
-import time
-
 import os
-
+from datetime import datetime
 class Trainer:
     def __init__(self, Env, policy,trainSteps,model, learningRate, warmupSteps, limitSteps,windowLength,targetModelUpdate,verbose) -> None:
         self.trainSteps = trainSteps
@@ -27,10 +22,15 @@ class Trainer:
                     target_model_update=self.targetModelUpdate, policy=self.policy)
         dqn.compile(Adam(learning_rate=self.learningRate))
 
-        dqn.fit(self.Env, nb_steps=self.trainSteps, visualize=False, verbose=1000)
+        dqn.fit(self.Env, nb_steps=self.trainSteps, visualize=False, verbose=self.verbose)
 
-    def load(self):
-        pass
+    def load(self, network,policy,day,time):
+        foldername = f"models/{network}/{policy}/{day}/{time}"
+        self.model.load_weights(foldername + "/model.hf5")
 
-    def save(self):
-        pass
+    def save(self, policy, network):
+        day = datetime.now().strftime("%Y%m%d")
+        time = datetime.now().strftime("%H%M%S")
+        foldername = f"models/{network}/{policy}/{day}/{time}"
+        os.makedirs(foldername)
+        self.model.save_weights(foldername + "/model.hf5")
