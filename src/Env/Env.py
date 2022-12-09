@@ -21,6 +21,7 @@ class TetrisE(Env):
         self.count += 1
         observation = self.getObservation()
 
+        action = round(action)
         if action == 0:
             self.moveBlock(-1,0)
         elif action == 1:
