@@ -13,7 +13,7 @@ class TetrisE(Env):
         self.action_space = spaces.Discrete(5)
         self.observation_space = spaces.Box(
             low=0, high=1, shape=(20, 10, 1), dtype=np.uint8)
-        self.reward_range = (-1, 1)
+        self.reward_range = (-.1, 1)
         self.doRender = render
         self.MinToWinLines = MinToWinLines
 
@@ -26,13 +26,14 @@ class TetrisE(Env):
         elif action == 1:
             self.moveBlock(1,0)
         elif action == 2:
-            runter = self.moveBlock(0,1)
+            pass
+            #runter = self.moveBlock(0,1)
             #while(runter):
              #   runter = self.moveBlock(0,1)
         elif action == 3:
             self.rotate(observation)
 
-        if self.count % 2:
+        if self.count % 4:
             self.moveBlock(0,1)
 
         retObs = observation.reshape(20,10,1)
@@ -46,12 +47,12 @@ class TetrisE(Env):
         return retObs, reward, done, info
         
     def calcReward(self, linewCleared, done)->int:
-        r = 0
+        r = 0.00007
         if done: 
             if linewCleared >= self.MinToWinLines:
                 r = 1
             else:
-                r = -1
+                r = -.1
         return r
 
     def clearLines(self):	
