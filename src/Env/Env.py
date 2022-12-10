@@ -8,7 +8,7 @@ from Env.TetrisBlock import TetrisBlock
 
 class TetrisE(Env):
 
-    def __init__(self, render,MinToWinLines) -> None:
+    def __init__(self, render,MinToWinLines, Logger) -> None:
         super(TetrisE, self).__init__()
         self.action_space = spaces.Discrete(5)
         self.observation_space = spaces.Box(
@@ -16,6 +16,9 @@ class TetrisE(Env):
         self.reward_range = (-.1, 1)
         self.doRender = render
         self.MinToWinLines = MinToWinLines
+        self.Logger = Logger
+
+        self.episodenCount = 0
 
     def step(self, action):
         self.count += 1
@@ -44,6 +47,11 @@ class TetrisE(Env):
 
         if(self.doRender):
             self.render()
+    
+        self.rewardSum += reward
+
+        if done:
+            self.Logger.log(f"Episode: {self.episodenCount} \t StepCount: {self.count} \t LinesCleared: {self.linedCleared} \t Reward: {self.rewardSum}")
 
         return retObs, reward, done, info
         
@@ -93,6 +101,8 @@ class TetrisE(Env):
         return False
 
     def reset(self):
+        self.episodenCount += 1
+        self.rewardSum = 0
         self.linedCleared = 0
         self.count = 0
         self.BlockCount = 0

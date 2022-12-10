@@ -5,6 +5,7 @@ from Env.Env import TetrisE
 from Policies.PolicyMan import PolicyMan, PolicieSpec
 from models.ModelMan import NetworkSpec, NetworkMan
 from Runner.Train import Trainer
+from Logger.FileLogger import FileLogger
 
 
 config = ConfigLoader("Config/config.ini","Main")
@@ -21,6 +22,7 @@ verbose = int(config.getConfig(ConfigSpec.verbose))
 modelN= config.getConfig(ConfigSpec.model)
 policyN = config.getConfig(ConfigSpec.policy)
 
+
 if len(sys.argv) == 3:
     modelN = sys.argv[1]
     policyN = sys.argv[2]
@@ -31,7 +33,9 @@ policySpec = PolicieSpec[policyN]
 
 minToWinLines = int(config.getConfig(ConfigSpec.minToWinLines))
 
-env = TetrisE(render,minToWinLines)
+Logger = FileLogger()
+
+env = TetrisE(render,minToWinLines, Logger = Logger)
 
 networkMan = NetworkMan(windowLength)
 model = networkMan.getNetwork(modelSpec)
@@ -51,12 +55,13 @@ trainer = Trainer(
     limitSteps= limitSteps,
     windowLength=windowLength, 
     targetModelUpdate=targetModelUpdate, 
-    verbose=verbose 
+    verbose=verbose,
+    Logger = Logger
 )
 
-
-trainer.train()
-trainer.save(policySpec.value,modelSpec.value)
+trainer.train(policySpec.value,modelSpec.value[0])
+savePath = trainer.save(policySpec.value,modelSpec.value[0])
+Logger.save(savePath)
 
 
 
