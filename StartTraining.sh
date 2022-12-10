@@ -1,12 +1,12 @@
-nohub python3 src/Main.py DenseTiny Greedy &
-nohub python3 src/Main.py DenseSmall Greedy &
-nohub python3 src/Main.py DenseBig Greedy &
-nohub python3 src/Main.py Conv1 Greedy &
-nohub python3 src/Main.py Conv2 Greedy &
-nohub python3 src/Main.py Conv3 Greedy &
-nohub python3 src/Main.py DenseTiny Boltz &
-nohub python3 src/Main.py DenseSmall Boltz &
-nohub python3 src/Main.py DenseBig Boltz &
-nohub python3 src/Main.py Conv1 Boltz &
-nohub python3 src/Main.py Conv2 Boltz &
-nohub python3 src/Main.py Conv3 Boltz &
+python3 src/Main.py DenseTiny Greedy &
+python3 src/Main.py DenseSmall Greedy &
+python3 src/Main.py DenseBig Greedy &
+python3 src/Main.py Conv1 Greedy &
+python3 src/Main.py Conv2 Greedy &
+python3 src/Main.py Conv3 Greedy &
+python3 src/Main.py DenseTiny Boltz &
+python3 src/Main.py DenseSmall Boltz &
+python3 src/Main.py DenseBig Boltz &
+python3 src/Main.py Conv1 Boltz &
+python3 src/Main.py Conv2 Boltz &
+python3 src/Main.py Conv3 Boltz &
