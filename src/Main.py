@@ -41,7 +41,7 @@ networkMan = NetworkMan(windowLength)
 model = networkMan.getNetwork(modelSpec)
 print(model.summary())
 
-policyMan = PolicyMan(minV=-.1,maxV=1,testV=.05,trainStep=trainStep)
+policyMan = PolicyMan(minV=0,maxV=1,testV=.05,trainStep=trainStep)
 policy = policyMan.getPolicy(policySpec)
 
 

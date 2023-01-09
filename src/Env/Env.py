@@ -10,10 +10,6 @@ class TetrisE(Env):
 
     def __init__(self, render,MinToWinLines, Logger) -> None:
         super(TetrisE, self).__init__()
-        self.action_space = spaces.Discrete(5)
-        self.observation_space = spaces.Box(
-            low=0, high=1, shape=(20, 10, 1), dtype=np.uint8)
-        self.reward_range = (-.1, 1)
         self.doRender = render
         self.MinToWinLines = MinToWinLines
         self.Logger = Logger
@@ -22,25 +18,21 @@ class TetrisE(Env):
 
     def step(self, action):
         self.count += 1
-        observation = self.getObservation()
 
         action = round(action)
         if action == 0:
             self.moveBlock(-1,0)
         elif action == 1:
             self.moveBlock(1,0)
-        elif action == 2:
-            pass
-            #runter = self.moveBlock(0,1)
-            #while(runter):
-             #   runter = self.moveBlock(0,1)
-        elif action == 3:
-            self.rotate(observation)
+       
+        self.moveBlock(0,1)
 
-        if self.count % 4:
-            self.moveBlock(0,1)
+        observation = self.getObservation()
 
         retObs = observation.reshape(20,10,1)
+        blockObs = self.blockObservation()
+        Obs = self.fusion(retObs,blockObs)
+
         done = self.lost()
         reward = self.calcReward(self.linedCleared,done)
         info = {}
@@ -53,15 +45,28 @@ class TetrisE(Env):
         if done:
             self.Logger.log(f"Episode: {self.episodenCount} \t StepCount: {self.count} \t LinesCleared: {self.linedCleared} \t Reward: {self.rewardSum}")
 
-        return retObs, reward, done, info
+        return Obs, reward, done, info
+
+    def fusion(self,obs1,obs2):
+        obs = np.zeros((20,10,2), dtype=np.uint8)
+        for i in range(0,20):
+            for j in range(0,10):
+                obs[i][j][0] = obs1[i][j][0]
+                obs[i][j][1] = obs2[i][j][0]
+        return obs
+
+    def blockObservation (self):
+        block:TetrisBlock = self.CurrentBlock
         
+        a = np.zeros((20,10,1), dtype=np.uint8)
+        for x,y in block.absolutPositions():
+            a[y][x][0] = 1
+
+        return a
+
     def calcReward(self, linewCleared, done)->int:
-        r = 0.00007
-        if done: 
-            if linewCleared >= self.MinToWinLines:
-                r = 1
-            else:
-                r = -.1
+        r = 0.001
+        r+= linewCleared * 0.1
         return r
 
     def clearLines(self):	
@@ -116,7 +121,7 @@ class TetrisE(Env):
             self.screen = pygame.display.set_mode((300, 600))
             self.screen.fill((0, 0, 0))
             pygame.display.flip()
-        return np.zeros((20,10,1), dtype=np.uint8)
+        return np.zeros((20,10,2), dtype=np.uint8)
 
     def moveBlock(self, x, y):
         for pos in self.CurrentBlock.absolutPositions():
@@ -158,23 +163,25 @@ class TetrisE(Env):
             self.CurrentBlock.rotate()
 
     def getObservation(self):
-        observation = np.zeros((20, 10), dtype=np.uint8)
+        observation = np.zeros((20, 10,1), dtype=np.uint8)
         for block in self.GameField:
             x,y,col = block
-            observation[y][x] = 1
+            observation[y][x][0] = 1
         return observation
 
     def render(self, mode='human', close=False):
         self.screen.fill((0, 0, 0))
-        for block in self.GameField:
-            x,y,col = block
-            pygame.draw.rect(self.screen, col,
-                                 (x*30, y*30, 30, 30))
-        
-        for block in self.CurrentBlock.absolutPositions():
-            x,y = block
-            pygame.draw.rect(self.screen, self.CurrentBlock.getColor(),
-                                 (x*30, y*30, 30, 30))
+        for i,y in enumerate(self.blockObservation()):
+            for j,x in enumerate(y):
+                if(x[0] == 1):
+                       pygame.draw.rect(self.screen, (255,255,255),
+                                 (j*30, i*30, 30, 30))
+
+        for i,y in enumerate(self.getObservation()):
+            for j,x in enumerate(y):
+                if(x[0] == 1):
+                       pygame.draw.rect(self.screen, (255,255,255),
+                                 (j*30, i*30, 30, 30))
         pygame.display.flip()
 
     def newBlock(self, First = False):
@@ -187,7 +194,7 @@ class TetrisE(Env):
     def newBlockWithoutSave(self):
         random.seed(self.BlockCount)
         self.BlockCount += 1
-        self.CurrentBlock = TetrisBlock(random.randint(0,6), 3, 0)
+        self.CurrentBlock = TetrisBlock(1, 3, 0)
 
     def stop(self):
         pygame.quit()

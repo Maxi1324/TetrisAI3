@@ -16,9 +16,13 @@ class Trainer:
         self.targetModelUpdate = targetModelUpdate
         self.verbose = verbose
         self.Logger = Logger
+
+        self.day = datetime.now().strftime("%Y%m%d")
+        self.time = datetime.now().strftime("%H%M%S")
+        self.foldername = f"models/{self.day}/{self.time}"
         
     def train(self, PolicyName = "not know", NetworkName = "not know"):
-
+        self.Logger.Setup(self.foldername)
         self.Logger.log("Now Training for " + str(self.trainSteps)+"steps")
         self.Logger.log("Training with policy: " + PolicyName)
         self.Logger.log("Training with model: " + NetworkName)
@@ -30,7 +34,7 @@ class Trainer:
         self.Logger.log("Start Training at " + datetime.now().strftime("%Y%m%d-%H%M%S")+"\n\n")       
 
         memory = SequentialMemory(limit=self.limitSteps, window_length=self.windowLength)
-        dqn = DQNAgent(model=self.model, nb_actions=5, memory=memory, nb_steps_warmup=self.warmupSteps,
+        dqn = DQNAgent(model=self.model, nb_actions=3, memory=memory, nb_steps_warmup=self.warmupSteps,
                     target_model_update=self.targetModelUpdate, policy=self.policy)
         dqn.compile(Adam(learning_rate=self.learningRate))
 
@@ -46,10 +50,8 @@ class Trainer:
 
     def save(self, policy, network):
         self.Logger.log("Saving model: " + str(network) )
-        day = datetime.now().strftime("%Y%m%d")
-        time = datetime.now().strftime("%H%M%S")
-        foldername = f"models/{network}/{policy}/{day}/{time}"
-        os.makedirs(foldername)
+       
+        foldername = self.foldername
         self.model.save_weights(foldername + "/model.hf5")
         self.Logger.log("Model saved at: " + foldername + "/model.hf5")
         return foldername

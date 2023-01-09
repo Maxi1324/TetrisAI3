@@ -7,11 +7,12 @@ class FileLogger:
         self.Messages = []
 
     def log(self, message):
-        self.Messages.append(message)
+        self.f.write(message + "\n")
+
+    def Setup(self, path):
+        os.makedirs(path)
+        self.f = open(path + "/log.txt", "w")
+
     
     def save(self,path):
-        path+="/logs/"
-        os.makedirs(path)
-        with open(path+"log.txt", "w") as f:
-            for s in self.Messages:
-                f.write(s + "\n")
+        pass
